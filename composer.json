@@ -1,0 +1,12 @@
+{
+    "name": "wongpakkwan/hkid-appointment",
+    "description": "HKID Card Appointment System",
+    "type": "project",
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "require": {
+        "phpgangsta/googleauthenticator": "dev-master",
+        "endroid/qrcode": "^6.0@dev",
+        "phpmailer/phpmailer": "dev-master"
+    }
+}
