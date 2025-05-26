@@ -43,6 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!validateUsername($username)) {
             $error = "Username must start with a letter, be alphanumeric, and be 6-20 characters long.";
+        } elseif (!validateTOTPCode($totp_code)) {
+            $error = "Invalid TOTP code (must be a 6-digit number).";
         } else {
             $stmt = $pdo->prepare("SELECT id, username, CAST(AES_DECRYPT(FROM_BASE64(password_hash), UNHEX(?)) AS CHAR) AS password_hash_decrypted, totp_secret, role FROM users WHERE username = ?");
             $stmt->execute([bin2hex(ENCRYPTION_KEY), $username]);

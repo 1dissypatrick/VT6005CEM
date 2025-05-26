@@ -36,12 +36,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Invalid gender.";
     } elseif (!validateDateOfBirth($date_of_birth)) {
         $error = "Invalid date of birth or applicant is under 16 years old.";
-    } elseif (empty($address)) {
-        $error = "Address is required.";
-    } elseif (empty($place_of_birth)) {
-        $error = "Place of birth is required.";
-    } elseif (empty($occupation)) {
-        $error = "Occupation is required.";
+    } elseif (empty($address) || !validateAddress($address)) {
+        $error = "Invalid address (must be 10-100 characters, alphanumeric with spaces, commas, periods, hashes, or hyphens).";
+    } elseif (empty($place_of_birth) || !validatePlaceOfBirth($place_of_birth)) {
+        $error = "Invalid place of birth (must be 2-50 characters, letters with spaces, commas, or periods).";
+    } elseif (empty($occupation) || !validateOccupation($occupation)) {
+        $error = "Invalid occupation (must be 2-50 characters, letters with spaces, commas, or periods).";
     } elseif (!validateHKID($hkid)) {
         $error = "Invalid HKID format.";
     } elseif (!in_array($purpose, ['application', 'replacement'])) {

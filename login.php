@@ -7,18 +7,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $totp_code = $_POST['totp_code'];
 
-    $stmt = $pdo->prepare("SELECT id, username, CAST(AES_DECRYPT(FROM_BASE64(password_hash), UNHEX(?)) AS CHAR) AS password_hash_decrypted, role, totp_secret FROM users WHERE username = ?");
-    $stmt->execute([bin2hex(ENCRYPTION_KEY), $username]);
-    $user = $stmt->fetch();
-
-    if ($user && password_verify($password, $user['password_hash_decrypted']) && verifyTOTP($user['totp_secret'], $totp_code)) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['role'] = $user['role'];
-        $_SESSION['mfa_setup'] = true;
-        header('Location: dashboard.php');
-        exit;
+    if (!validateTOTPCode($totp_code)) {
+        $error = "Invalid TOTP code (must be a 6-digit number).";
     } else {
-        $error = "Invalid username, password, or TOTP code.";
+        $stmt = $pdo->prepare("SELECT id, username, CAST(AES_DECRYPT(FROM_BASE64(password_hash), UNHEX(?)) AS CHAR) AS password_hash_decrypted, role, totp_secret FROM users WHERE username = ?");
+        $stmt->execute([bin2hex(ENCRYPTION_KEY), $username]);
+        $user = $stmt->fetch();
+
+        if ($user && password_verify($password, $user['password_hash_decrypted']) && verifyTOTP($user['totp_secret'], $totp_code)) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['mfa_setup'] = true;
+            header('Location: dashboard.php');
+            exit;
+        } else {
+            $error = "Invalid username, password, or TOTP code.";
+        }
     }
 }
 ?>

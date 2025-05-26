@@ -40,6 +40,25 @@ function validateDateOfBirth($dob) {
     return $age >= 16;
 }
 
+// Validate address (alphanumeric, spaces, and common punctuation, 10-100 characters)
+function validateAddress($address) {
+    return preg_match('/^[A-Za-z0-9\s,.#-]{10,100}$/', $address);
+}
+
+// Validate place of birth (alphanumeric, spaces, and common punctuation, 2-50 characters)
+function validatePlaceOfBirth($place) {
+    return preg_match('/^[A-Za-z\s,.]{2,50}$/', $place);
+}
+
+// Validate occupation (alphanumeric, spaces, and common punctuation, 2-50 characters)
+function validateOccupation($occupation) {
+    return preg_match('/^[A-Za-z\s,.]{2,50}$/', $occupation);
+}
+
+function validateTOTPCode($code) {
+    return preg_match('/^\d{6}$/', $code);
+}
+
 // Check user role for RBAC
 function checkRole($requiredRole) {
     if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== $requiredRole) {

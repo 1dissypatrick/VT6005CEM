@@ -49,12 +49,24 @@
 -- ('Fo Tan Immigration Office'),
 -- ('Tuen Mun Immigration Office');
 
--- Modify appointments table
-ALTER TABLE appointments
-    MODIFY COLUMN hkid VARBINARY(255) NOT NULL,
-    MODIFY COLUMN email VARBINARY(255) NOT NULL;
+-- -- Modify appointments table
+-- ALTER TABLE appointments
+--     MODIFY COLUMN hkid VARBINARY(255) NOT NULL,
+--     MODIFY COLUMN email VARBINARY(255) NOT NULL;
 
--- Modify users table
-ALTER TABLE users
-    MODIFY COLUMN password_hash VARBINARY(255) NOT NULL;
-    -- If email is added to users table, add: MODIFY COLUMN email VARBINARY(255);
+-- -- Modify users table
+-- ALTER TABLE users
+--     MODIFY COLUMN password_hash VARBINARY(255) NOT NULL;
+--     -- If email is added to users table, add: MODIFY COLUMN email VARBINARY(255);
+
+ALTER TABLE users MODIFY totp_secret VARCHAR(255) NOT NULL;
+
+CREATE TABLE logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_type VARCHAR(50) NOT NULL,
+    user_id INT NULL,
+    username VARCHAR(20) NULL,
+    details TEXT NOT NULL,
+    timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);

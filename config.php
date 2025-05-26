@@ -12,15 +12,20 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
-// Security headers (web server hardening)
+// Security headers (web server hardening) preventing phishing
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 header('Content-Security-Policy: default-src \'self\'');
 header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+header('Referrer-Policy: no-referrer');
+header('Feature-Policy: geolocation \'none\'; camera \'none\'; microphone \'none\'');
 
 // Session configuration
 ini_set('session.cookie_httponly', 1);
 ini_set('session.cookie_secure', 1); // Enforce HTTPS
+ini_set('session.cookie_samesite', 'Strict'); 
+// The SameSite attribute controls whether cookies are sent with cross-site requests, 
+// mitigating Cross-Site Request Forgery (CSRF) attacks.
 session_start();
 
 // Require Google Authenticator for MFA
