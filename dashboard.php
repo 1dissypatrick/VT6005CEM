@@ -16,7 +16,7 @@ if (!isset($_SESSION['user_id'])) {
     <h2>Welcome, <?php echo htmlspecialchars($_SESSION['role']); ?>!</h2>
     <ul>
         <?php if ($_SESSION['role'] === 'junior') { ?>
-            <li><a href="book_appointment.php">Book Appointment</a></li>
+            <li><a href="book_appointment1.php">Book Appointment</a></li>
         <?php } ?>
         <?php if ($_SESSION['role'] === 'approving') { ?>
             <li><a href="manage_appointments.php">Manage Appointments</a></li>

@@ -1,4 +1,4 @@
 git add .
 git status
-git commit -m "add config"
+git commit -m "add phpmailer"
 git push origin master

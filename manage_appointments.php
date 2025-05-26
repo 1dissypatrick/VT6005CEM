@@ -1,6 +1,10 @@
 <?php
 require_once 'functions.php';
-require_once 'C:/xampp/secure\\encryption_key.php'; // Windows path
+require_once 'C:/xampp/secure/encryption_key.php';
+require_once 'vendor/autoload.php'; // Include Composer autoloader
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 checkRole('approving'); // Also allowed for admin
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -38,11 +42,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $email_body = "Dear $english_name,\n\nWe regret to inform you that your HKID special case appointment (Purpose: $purpose, Date: $appointment_date, Time: $appointment_time, Venue: $venue) has been rejected.\nPlease book a new appointment if needed.\n\nBest regards,\nHKID Appointment System";
             }
 
-            // Log the email reminder (simulating sending)
-            $log_message = "Email Reminder (to be sent on $reminder_date):\nTo: $email\nSubject: $email_subject\nBody:\n$email_body\n\n";
-            file_put_contents('email_reminders.log', $log_message, FILE_APPEND);
+            // Send email using PHPMailer
+            $mail = new PHPMailer(true);
+            try {
+                // SMTP configuration
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com';
+                $mail->SMTPAuth = true;
+                $mail->Username = 'wongpakkwan90@gmail.com'; // Replace with your Gmail address
+                $mail->Password = 'vmen wjlz cjyx lxou'; // Replace with your Gmail App Password
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
 
-            $success = "Appointment updated and reminder scheduled!";
+                // Email settings
+                $mail->setFrom('no-reply@hkid-system.com', 'HKID Appointment System');
+                $mail->addAddress($email, $english_name);
+                $mail->Subject = $email_subject;
+                $mail->Body = $email_body;
+                $mail->AltBody = $email_body; // Plain text version
+
+                $mail->send();
+                $success = "Appointment updated and email reminder sent!";
+            } catch (Exception $e) {
+                $error = "Failed to send email: {$mail->ErrorInfo}";
+            }
         } else {
             $error = "Failed to fetch appointment details.";
         }
