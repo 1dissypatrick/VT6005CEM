@@ -1,5 +1,6 @@
 <?php
 require_once 'functions.php';
+require_once 'C:/xampp/secure/encryption_key.php'; // Windows path for encryption key
 
 // Clear any existing session data to ensure fresh setup
 if (isset($_SESSION['mfa_setup'])) {
@@ -20,11 +21,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!validateUsername($username)) {
             $error = "Username must start with a letter, be alphanumeric, and be 6-20 characters long.";
         } else {
-            $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-            $stmt->execute([$username]);
+            $stmt = $pdo->prepare("SELECT id, username, CAST(AES_DECRYPT(FROM_BASE64(password_hash), UNHEX(?)) AS CHAR) AS password_hash_decrypted, totp_secret FROM users WHERE username = ?");
+            $stmt->execute([bin2hex(ENCRYPTION_KEY), $username]);
             $user = $stmt->fetch();
 
-            if ($user && password_verify($password, $user['password_hash'])) {
+            if ($user && password_verify($password, $user['password_hash_decrypted'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['totp_secret'] = $user['totp_secret'];
@@ -43,11 +44,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!validateUsername($username)) {
             $error = "Username must start with a letter, be alphanumeric, and be 6-20 characters long.";
         } else {
-            $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-            $stmt->execute([$username]);
+            $stmt = $pdo->prepare("SELECT id, username, CAST(AES_DECRYPT(FROM_BASE64(password_hash), UNHEX(?)) AS CHAR) AS password_hash_decrypted, totp_secret, role FROM users WHERE username = ?");
+            $stmt->execute([bin2hex(ENCRYPTION_KEY), $username]);
             $user = $stmt->fetch();
 
-            if ($user && password_verify($password, $user['password_hash']) && verifyTOTP($user['totp_secret'], $totp_code)) {
+            if ($user && password_verify($password, $user['password_hash_decrypted']) && verifyTOTP($user['totp_secret'], $totp_code)) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['mfa_setup'] = true;

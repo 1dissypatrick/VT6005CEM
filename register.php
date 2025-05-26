@@ -1,9 +1,10 @@
 <?php
 require_once 'functions.php';
+require_once 'C:/xampp/secure/encryption_key.php'; // Windows path
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = sanitizeInput($_POST['username']);
-    $password = $_POST['password']; // Don't sanitize password to preserve its integrity for hashing
+    $password = $_POST['password']; // Don't sanitize password to preserve integrity
     $role = sanitizeInput($_POST['role']);
 
     // Validate inputs
@@ -22,18 +23,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($count > 0) {
             $error = "Username '$username' is already taken. Please choose a different username.";
         } else {
-            // Generate Argon2 hash with optimized parameters (salt is included automatically)
+            // Generate Argon2 hash
             $password_hash = password_hash($password, PASSWORD_ARGON2ID, [
-                'memory_cost' => 65536, // 64 MB
-                'time_cost' => 4,       // 4 iterations
-                'threads' => 2          // 2 threads
+                'memory_cost' => 65536,
+                'time_cost' => 4,
+                'threads' => 2
             ]);
+            // Encrypt password_hash
+            $password_hash_encrypted = base64_encode($pdo->query("SELECT AES_ENCRYPT('$password_hash', UNHEX('" . bin2hex(ENCRYPTION_KEY) . "'))")->fetchColumn());
+
             // Generate TOTP secret
             $totp_secret = $ga->createSecret();
 
             // Store user in database
             $stmt = $pdo->prepare("INSERT INTO users (username, password_hash, role, totp_secret) VALUES (?, ?, ?, ?)");
-            if ($stmt->execute([$username, $password_hash, $role, $totp_secret])) {
+            if ($stmt->execute([$username, $password_hash_encrypted, $role, $totp_secret])) {
                 $_SESSION['registration_success'] = "User $username registered successfully. They can log in to set up MFA.";
                 header('Location: register_result.php');
                 exit;
@@ -54,17 +58,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h2>Register New User</h2>
     <?php if (isset($error)) echo "<p style='color:red;'>$error</p>"; ?>
     <form method="POST">
-        <label>Username: <input type="text" name="username" required placeholder="e.g. user123"></label><br>
-        <label>Password: <input type="password" name="password" required placeholder="e.g. Password123!"></label><br>
+        <label>Username: <input type="text" name="username" required placeholder="e.g. user123"></label><br><br>
+        <label>Password: <input type="password" name="password" required placeholder="e.g. Password123!"></label><br><br>
         <label>Role: 
             <select name="role">
                 <option value="junior">Junior Staff</option>
                 <option value="approving">Approving Staff</option>
                 <option value="admin">Admin</option>
             </select>
-        </label><br>
+        </label><br><br>
         <button type="submit">Register</button>
     </form>
+    <br>
     <a href="dashboard.php">Back to dashboard</a>
 </body>
 </html>

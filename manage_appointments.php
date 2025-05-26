@@ -1,5 +1,6 @@
 <?php
 require_once 'functions.php';
+require_once 'C:/xampp/secure\\encryption_key.php'; // Windows path
 checkRole('approving'); // Also allowed for admin
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -12,13 +13,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$status, $appointment_id]);
 
         // Fetch appointment details for email reminder
-        $stmt = $pdo->prepare("SELECT a.*, v.name AS venue_name FROM appointments a JOIN venues v ON a.venue_id = v.id WHERE a.id = ?");
-        $stmt->execute([$appointment_id]);
+        $stmt = $pdo->prepare("SELECT a.*, v.name AS venue_name, 
+            CAST(AES_DECRYPT(FROM_BASE64(a.hkid), UNHEX(?)) AS CHAR) AS hkid_decrypted,
+            CAST(AES_DECRYPT(FROM_BASE64(a.email), UNHEX(?)) AS CHAR) AS email_decrypted
+            FROM appointments a JOIN venues v ON a.venue_id = v.id WHERE a.id = ?");
+        $stmt->execute([bin2hex(ENCRYPTION_KEY), bin2hex(ENCRYPTION_KEY), $appointment_id]);
         $appt = $stmt->fetch();
 
         if ($appt) {
             // Prepare email reminder based on status
-            $email = $appt['email'];
+            $email = $appt['email_decrypted'];
             $english_name = $appt['english_name'];
             $appointment_date = $appt['appointment_date'];
             $appointment_time = $appt['appointment_time'];
@@ -47,8 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch only pending appointments with venue names and email
-$stmt = $pdo->query("SELECT a.*, v.name AS venue_name FROM appointments a JOIN venues v ON a.venue_id = v.id WHERE a.status = 'pending'");
+// Fetch only pending appointments with decrypted fields
+$stmt = $pdo->query("SELECT a.*, v.name AS venue_name, 
+    CAST(AES_DECRYPT(FROM_BASE64(a.hkid), UNHEX('" . bin2hex(ENCRYPTION_KEY) . "')) AS CHAR) AS hkid_decrypted,
+    CAST(AES_DECRYPT(FROM_BASE64(a.email), UNHEX('" . bin2hex(ENCRYPTION_KEY) . "')) AS CHAR) AS email_decrypted
+    FROM appointments a JOIN venues v ON a.venue_id = v.id WHERE a.status = 'pending'");
 $appointments = $stmt->fetchAll();
 ?>
 
@@ -81,8 +88,8 @@ $appointments = $stmt->fetchAll();
                 <td><?php echo $appt['id']; ?></td>
                 <td><?php echo htmlspecialchars($appt['english_name']); ?></td>
                 <td><?php echo htmlspecialchars($appt['chinese_name']); ?></td>
-                <td><?php echo htmlspecialchars($appt['hkid']); ?></td>
-                <td><?php echo htmlspecialchars($appt['email']); ?></td>
+                <td><?php echo htmlspecialchars($appt['hkid_decrypted']); ?></td>
+                <td><?php echo htmlspecialchars($appt['email_decrypted']); ?></td>
                 <td><?php echo htmlspecialchars($appt['purpose']); ?></td>
                 <td><?php echo $appt['appointment_date']; ?></td>
                 <td><?php echo $appt['appointment_time']; ?></td>
@@ -101,6 +108,7 @@ $appointments = $stmt->fetchAll();
             </tr>
         <?php } ?>
     </table>
+    <br>
     <a href="dashboard.php">Back to Dashboard</a>
 </body>
 </html>

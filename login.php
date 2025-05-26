@@ -1,16 +1,17 @@
 <?php
 require_once 'functions.php';
+require_once 'C:/xampp/secure/encryption_key.php'; // Windows path
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = sanitizeInput($_POST['username']);
     $password = $_POST['password'];
     $totp_code = $_POST['totp_code'];
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-    $stmt->execute([$username]);
+    $stmt = $pdo->prepare("SELECT id, username, CAST(AES_DECRYPT(FROM_BASE64(password_hash), UNHEX(?)) AS CHAR) AS password_hash_decrypted, role, totp_secret FROM users WHERE username = ?");
+    $stmt->execute([bin2hex(ENCRYPTION_KEY), $username]);
     $user = $stmt->fetch();
 
-    if ($user && password_verify($password, $user['password_hash']) && verifyTOTP($user['totp_secret'], $totp_code)) {
+    if ($user && password_verify($password, $user['password_hash_decrypted']) && verifyTOTP($user['totp_secret'], $totp_code)) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['role'] = $user['role'];
         $_SESSION['mfa_setup'] = true;
@@ -31,11 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h2>Login</h2>
     <?php if (isset($error)) echo "<p style='color:red;'>$error</p>"; ?>
     <form method="POST">
-        <label>Username: <input type="text" name="username" required></label><br>
-        <label>Password: <input type="password" name="password" required></label><br>
-        <label>TOTP Code: <input type="text" name="totp_code" required></label><br>
+        <label>Username: <input type="text" name="username" required></label><br><br>
+        <label>Password: <input type="password" name="password" required></label><br><br>
+        <label>TOTP Code: <input type="text" name="totp_code" required></label><br><br>
         <button type="submit">Login</button>
     </form>
+    <br>
     <p>Don't have a TOTP code? <a href="setup_mfa.php"><button>Setup MFA First</button></a></p>
 </body>
 </html>

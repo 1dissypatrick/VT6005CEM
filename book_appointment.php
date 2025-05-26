@@ -1,5 +1,6 @@
 <?php
 require_once 'functions.php';
+require_once 'C:/xampp/secure/encryption_key.php'; // Windows path
 checkRole('junior'); // Also allowed for admin
 
 // Fetch available venues
@@ -58,12 +59,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$stmt->fetch()) {
             $error = "Invalid venue.";
         } else {
+            // Encrypt sensitive data
+            $hkid_encrypted = base64_encode($pdo->query("SELECT AES_ENCRYPT('$hkid', UNHEX('" . bin2hex(ENCRYPTION_KEY) . "'))")->fetchColumn());
+            $email_encrypted = base64_encode($pdo->query("SELECT AES_ENCRYPT('$email', UNHEX('" . bin2hex(ENCRYPTION_KEY) . "'))")->fetchColumn());
+
             // Determine status based on button clicked
             $status = $is_special_case ? 'pending' : 'approved';
 
             // Insert appointment into the database (using parameterized query)
             $stmt = $pdo->prepare("INSERT INTO appointments (user_id, english_name, chinese_name, gender, date_of_birth, address, place_of_birth, occupation, hkid, purpose, appointment_date, appointment_time, venue_id, email, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            if ($stmt->execute([$_SESSION['user_id'], $english_name, $chinese_name, $gender, $date_of_birth, $address, $place_of_birth, $occupation, $hkid, $purpose, $appointment_date, $appointment_time, $venue_id, $email, $status])) {
+            if ($stmt->execute([$_SESSION['user_id'], $english_name, $chinese_name, $gender, $date_of_birth, $address, $place_of_birth, $occupation, $hkid_encrypted, $purpose, $appointment_date, $appointment_time, $venue_id, $email_encrypted, $status])) {
                 // If approved, send confirmation email
                 if ($status === 'approved') {
                     $venue_stmt = $pdo->prepare("SELECT name FROM venues WHERE id = ?");
@@ -102,8 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="POST">
         <label>Purpose: 
             <select name="purpose" required>
-                <option value="application">HKID card Application</option>
-                <option value="replacement">HKID card Replacing</option>
+                <option value="application">New Application</option>
+                <option value="replacement">Replacement</option>
             </select>
         </label><br>
         <label>English Name: <input type="text" name="english_name" required></label><br>
