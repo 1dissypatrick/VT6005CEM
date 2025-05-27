@@ -88,6 +88,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $email_body = "Dear $english_name,\n\nYour HKID appointment has been approved:\nDate: $appointment_date\nTime: $appointment_time\nVenue: $venue\nPurpose: $purpose\n\nPlease arrive 10 minutes early with all required documents.\n\nBest regards,\nHKID Appointment System";
 
                     // Send email using PHPMailer
+                    require_once 'C:/xampp/secure/config.php';
+                    $config = include('C:/xampp/secure/config.php');
                     $mail = new PHPMailer(true);
                     try {
                         // SMTP configuration
@@ -96,8 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $mail->isSMTP();
                         $mail->Host = 'smtp.gmail.com';
                         $mail->SMTPAuth = true;
-                        $mail->Username = 'wongpakkwan90@gmail.com'; // Gmail address
-                        $mail->Password = 'vmen wjlz cjyx lxou'; // App password
+                        $mail->Username = $config['smtp']['username'];
+                        $mail->Password = $config['smtp']['password'];
                         // 以在傳輸過程中保護電子郵件內容。
                         // 這可確保敏感資料（例如電子郵件正文中的預約詳細資訊）已加密，
                         // 並且不太可能被攻擊者攔截。

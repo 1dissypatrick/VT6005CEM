@@ -43,14 +43,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Send email using PHPMailer
+            $config = include('C:/xampp/secure/config.php');
             $mail = new PHPMailer(true);
             try {
                 // SMTP configuration
                 $mail->isSMTP();
                 $mail->Host = 'smtp.gmail.com';
                 $mail->SMTPAuth = true;
-                $mail->Username = 'wongpakkwan90@gmail.com'; // Replace with your Gmail address
-                $mail->Password = 'vmen wjlz cjyx lxou'; // Replace with your Gmail App Password
+                $mail->Username = $config['smtp']['username'];
+                $mail->Password = $config['smtp']['password'];  
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;
 
