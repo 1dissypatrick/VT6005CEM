@@ -26,7 +26,17 @@ ini_set('session.cookie_secure', 1); // Enforce HTTPS
 ini_set('session.cookie_samesite', 'Strict'); 
 // The SameSite attribute controls whether cookies are sent with cross-site requests, 
 // mitigating Cross-Site Request Forgery (CSRF) attacks.
-session_start();
+ini_set('session.use_strict_mode', '1');
+
+// Start session only if not active
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Initialize CSRF token if not set
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 
 // Require Google Authenticator for MFA
 require 'vendor/autoload.php';

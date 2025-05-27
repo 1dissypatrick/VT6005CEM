@@ -59,14 +59,6 @@
 --     MODIFY COLUMN password_hash VARBINARY(255) NOT NULL;
 --     -- If email is added to users table, add: MODIFY COLUMN email VARBINARY(255);
 
-ALTER TABLE users MODIFY totp_secret VARCHAR(255) NOT NULL;
+-- ALTER TABLE users MODIFY totp_secret VARCHAR(255) NOT NULL;
 
-CREATE TABLE logs (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    event_type VARCHAR(50) NOT NULL,
-    user_id INT NULL,
-    username VARCHAR(20) NULL,
-    details TEXT NOT NULL,
-    timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
+ALTER TABLE appointments MODIFY user_id INT NULL;
