@@ -60,6 +60,7 @@ header('Referrer-Policy: no-referrer');
         <button type="submit">Login</button>
     </form>
     <p>Don't have a TOTP code? <a href="setup_mfa.php"><button>Setup MFA First</button></a></p>
+    
     <p><a href="index.php">Back to Home</a></p>
 </body>
 </html>

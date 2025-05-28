@@ -1,7 +1,7 @@
 <?php
 require_once 'functions.php';
 require_once 'C:/xampp/secure/encryption_key.php'; // Windows path
-
+checkRole('admin');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = sanitizeInput($_POST['username']);
     $password = $_POST['password']; // Don't sanitize password to preserve integrity
