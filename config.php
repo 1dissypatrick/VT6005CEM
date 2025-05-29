@@ -13,16 +13,20 @@ try {
 }
 
 // Security headers (web server hardening) preventing phishing
-header('X-Frame-Options: DENY');
+// 透過禁止頁面嵌入 iframe 來防止點擊劫持
+header('X-Frame-Options: DENY'); 
 header('X-Content-Type-Options: nosniff');
 header('Content-Security-Policy: default-src \'self\'');
+//強制使用 HTTPS，防止中間人 (MITM) 攻擊。
 header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
 header('Referrer-Policy: no-referrer');
+// Disables access to sensitive features like geolocation, camera, and microphone.
 header('Feature-Policy: geolocation \'none\'; camera \'none\'; microphone \'none\'');
 
 // Session configuration
+//阻止客戶端腳本存取會話 cookie，降低 XSS 風險。
 ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_secure', 1); // Enforce HTTPS
+ini_set('session.cookie_secure', 1); // close HTTPS
 ini_set('session.cookie_samesite', 'Strict'); 
 // The SameSite attribute controls whether cookies are sent with cross-site requests, 
 // mitigating Cross-Site Request Forgery (CSRF) attacks.

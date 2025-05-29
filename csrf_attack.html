@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSRF Attack Simulation</title>
+</head>
+<body>
+    <h1>CSRF Attack Simulation</h1>
+    <p>Submitting a form to login.php without a CSRF token:</p>
+    <form action="http://localhost:81/VT6005CEM Coursework 2 Wong Pak Kwan/login.php" method="POST">
+        <input type="text" name="username" value="test">
+        <input type="password" name="password" value="test">
+        <input type="text" name="totp_code" value="123456">
+        <button type="submit">Submit</button>
+    </form>
+    <p>If the request fails with a CSRF error, the protection is working.</p>
+</body>
+</html>

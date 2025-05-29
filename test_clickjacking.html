@@ -1,0 +1,22 @@
+<!-- In the username field, input malicious SQL like ' OR '1'='1. -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clickjacking Test</title>
+</head>
+<body>
+    <h1>Clickjacking Test Page</h1>
+    <!-- <p>Attempting to embed login.php in an iframe below:</p> -->
+    <iframe src="http://localhost:81/VT6005CEM Coursework 2 Wong Pak Kwan/login.php" width="800" height="600"></iframe>
+    <!-- <p>If the iframe is blank or blocked, the X-Frame-Options: DENY header is working.</p> -->
+</body>
+</html>
+
+<!-- ?test=<script>alert('XSS')</script> -->
+
+<!-- ?test=<script>window.location='https://fs.vtc.edu.hk/adfs/ls';</script> -->
+
+<!-- console.log(document.cookie); -->

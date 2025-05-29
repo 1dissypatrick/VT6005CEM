@@ -3,6 +3,10 @@ require_once 'config.php';
 require_once 'functions.php';
 require_once 'C:/xampp/secure/encryption_key.php';
 
+if (isset($_GET['test'])) {
+    echo $_GET['test']; // Intentionally unsanitized for testing
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate CSRF token
     if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
