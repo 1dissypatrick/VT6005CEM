@@ -1,4 +1,4 @@
 git add .
 git status
-git commit -m "testing"
+git commit -m "ADD CAPTCHA"
 git push origin master

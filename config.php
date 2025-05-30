@@ -16,6 +16,7 @@ try {
 // 透過禁止頁面嵌入 iframe 來防止點擊劫持
 header('X-Frame-Options: DENY'); 
 header('X-Content-Type-Options: nosniff');
+// prevent script
 header('Content-Security-Policy: default-src \'self\'');
 //強制使用 HTTPS，防止中間人 (MITM) 攻擊。
 header('Strict-Transport-Security: max-age=31536000; includeSubDomains');

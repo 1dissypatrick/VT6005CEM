@@ -42,7 +42,7 @@ function validateDateOfBirth($dob) {
 
 // Validate address (alphanumeric, spaces, and common punctuation, 10-100 characters)
 function validateAddress($address) {
-    return preg_match('/^[A-Za-z0-9\s,.#-]{10,100}$/', $address);
+    return preg_match('/^[A-Za-z0-9\s,.#-]{10,300}$/', $address);
 }
 
 // Validate place of birth (alphanumeric, spaces, and common punctuation, 2-50 characters)
